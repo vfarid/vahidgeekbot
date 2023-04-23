@@ -5,7 +5,9 @@
   */
 
 import Telegram from "./telegram"
-import ipCommands from "./ip-command"
+import ipCommand from "./ip-command"
+import Helpers from "./helpers";
+import { Operators } from "./operators";
 
 export interface Env {
   	API_TOKEN: string;
@@ -24,15 +26,32 @@ export default {
 			request.method.toLowerCase() === "post"
 		) { // Webhook post request
 			const data: any = await request.json();
-			console.log(data)
+			// console.log(data)
 
 			var reply:any = null
 			if (data.hasOwnProperty("callback_query")) { // Inline keaboard reply
 				const message = data.callback_query.message
 				const callbackData = data.callback_query.data
-
-				reply = ipCommands.askForOperator({ message: message })
-				reply = telegram.answerCallbackQuery({ message: reply })
+				if (Object.keys(ipCommand.cleanIpChoices).includes(callbackData)) {
+					telegram.deleteMessage({ message: message })
+					if (callbackData === "get-clean-ip") {
+						reply = await ipCommand.askForOperator({ message: message, choice: ipCommand.cleanIpChoices[callbackData] })
+					} else {
+						reply = Helpers.getUnderDevelopmentMessage({ message: message })
+					}
+				} else if (
+					callbackData.startsWith("operator-") &&
+					Object.keys(Operators).includes(callbackData.replace(/^operator-/g, ""))
+				) {
+					const operator = callbackData.replace(/^operator-/g, "")
+					telegram.deleteMessage({ message: message })
+					reply = await ipCommand.sendIPForOperator({ message: message, operator: operator })
+				} else if (callbackData === "cancel") {
+					telegram.deleteMessage({ message: message })
+					reply = Helpers.getCancelMessage({ message: message })
+				} else {
+					// console.log(callbackData, Object.keys(ipCommand.cleanIpChoices))
+				}
 
 			} else if (data.hasOwnProperty("message")) {
 				const message = data.message
@@ -43,14 +62,23 @@ export default {
 				) {
 					const command = getCommand({ message: message })
 					if (command === "ip") {
-						reply = ipCommands.execute({ message: message })
+						reply = await ipCommand.execute({ message: message })
+					} else if (command === "help") {
+						reply = Helpers.getHelpMessage({ message: message })
+					} else if (command === "cancel") {
+						reply = Helpers.getCancelMessage({ message: message })
+					} else {
+						reply = {
+							chat_id: message.chat.id,
+							text: "دستور شما نامعتبر می‌باشد!",
+						}
 					}
 				} else {
 					//
 				}
 			}
 			if (reply) {
-				console.log(reply)
+				// console.log(reply)
 				return telegram.sendMessage({ message: reply })
 			}
 		}
@@ -72,5 +100,5 @@ function executeCommand({ message }: { message: any }): any {
 	const command = getCommand({
 		message: message
 	})
-	console.log(command)
+	// console.log(command)
 }
