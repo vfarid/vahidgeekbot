@@ -1,48 +1,52 @@
 import {Operators} from "./operators"
+import Helpers from "./helpers"
+import Github from "./github"
 
-export default class ipCommands {
+export default class ipCommand {
+    static cleanIpChoices: any = {
+        "get-clean-ip": "دریافت آی‌پی تمیز",
+        "send-clean-ip": "ارسال آی‌پی تمیز",
+        "verify-clean-ip": "تصدیق آی‌پی تمیز",
+    }
 
-    static execute ({ message }: { message: any }): any {
+    
+    static async execute({ message }: { message: any }): Promise<any> {
         return {
             chat_id: message.chat.id,
             text: "گزینه‌ی مورد نظر خود را انتخاب کنید:",
             reply_markup: {
-                inline_keyboard: [
-                    [{text: "دریافت آی‌پی تمیز", callback_data: "get-clean-ip"}],
-                    [{text: "ارسال آی‌پی تمیز", callback_data: "send-clean-ip"}],
-                    [{text: "تصدیق آی‌پی تمیز", callback_data: "verify-clean-ip"}],
-                ]
+                inline_keyboard: Helpers.toKeyboard({ choices: ipCommand.cleanIpChoices })
             }
         }
     }
 
-    static askForOperator ({ message }: { message: any }): any {
-        var keyboard: Array<any> = [
-            [
-                {text: "همراه اول", callback_data: "operator-mci"},
-                {text: "ایرانسل", callback_data: "operator-mtn"},
-                {text: "رایتل", callback_data: "operator-rtl"},
-            ],
-        ]
-        var i = 0, j = 0
-
-        // for (var operator in Operators) {
-        //     keyboard[i][j] = {
-        //         text: Operators[operator],
-        //         callback_data: `operator-${operator}`,
-        //     }
-        //     if (++j === 3) {
-        //         i++
-        //         j = 0
-        //     }
-        // }
-        console.log(keyboard)
+    static async askForOperator({ message, choice }: {
+        message: any
+        choice: string
+    }): Promise<any> {
         return {
             chat_id: message.chat.id,
-            text: "اپراتور خود را انتخاب کنید:",
+            text: `گزینه‌ی انتخابی شما: ${choice}.\n\nلطفا اپراتور خود را انتخاب کنید:`,
             reply_markup: {
-                inline_keyboard: keyboard
+                inline_keyboard: Helpers.toKeyboard({ choices: Operators, cols: 3, prefix: "operator-" })
             }
+        }
+    }
+
+    static async sendIPForOperator({ message, operator }: {
+        message: any
+        operator: string
+    }): Promise<any> {
+        const ipList = await Github.getIPv4Json({ operator: operator })
+        // console.log(ipList)
+        return {
+            chat_id: message.chat.id,
+            parse_mode: "Markdown",
+            text:
+                `آی‌پی تمیز برای ${Operators[operator]}:\n\n` +
+                Helpers.getRandomNElements({ arr: ipList, num: 3 })
+                    .map((el: any) => `\`${el.ip}\``)
+                    .join("\n\n"),
         }
     }
 }
