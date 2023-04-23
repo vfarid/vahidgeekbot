@@ -12,5 +12,8 @@
     "start": "wrangler dev",
     "deploy": "wrangler publish",
     "test": "vitest"
+  },
+  "dependencies": {
+    "git-js": "^1.1.1"
   }
 }
