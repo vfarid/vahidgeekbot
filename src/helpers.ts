@@ -10,7 +10,18 @@ export default class Helpers {
     static getHelpMessage({ message }: { message: any }): any {
         return {
             chat_id: message.chat.id,
-            text: "به زودی...",
+            text: `\
+خوش آمدید.
+برای استفاده از ربات، یکی از دستورات زیر را انتخاب نمایید:
+
+/ip - دریافت/ارسال آی‌پی تمیز
+/worker - راهنمای ساخت ورکر
+/help - راهنمای فعلی
+/cancel - لغو عملیات
+
+برای کسب اطلاعات بیشتر به کانال تلگرامی من مراجعه فرمایید:
+@VahidGeek
+`,
         }
     }
     

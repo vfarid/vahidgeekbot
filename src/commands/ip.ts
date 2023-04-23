@@ -1,6 +1,6 @@
-import {Operators} from "./operators"
-import Helpers from "./helpers"
-import Github from "./github"
+import {Operators} from "../operators"
+import Helpers from "../helpers"
+import Github from "../github"
 
 export default class ipCommand {
     static cleanIpChoices: any = {

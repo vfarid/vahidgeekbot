@@ -5,7 +5,7 @@
   */
 
 import Telegram from "./telegram"
-import ipCommand from "./ip-command"
+import ipCommand from "./commands/ip"
 import Helpers from "./helpers";
 import { Operators } from "./operators";
 
@@ -63,7 +63,11 @@ export default {
 					const command = getCommand({ message: message })
 					if (command === "ip") {
 						reply = await ipCommand.execute({ message: message })
+					} else if (command === "worker") {
+						reply = Helpers.getUnderDevelopmentMessage({ message: message })
 					} else if (command === "help") {
+						reply = Helpers.getHelpMessage({ message: message })
+					} else if (command === "start") {
 						reply = Helpers.getHelpMessage({ message: message })
 					} else if (command === "cancel") {
 						reply = Helpers.getCancelMessage({ message: message })
