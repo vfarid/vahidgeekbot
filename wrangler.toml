@@ -1,6 +1,3 @@
 name = "vahidgeekbot"
 main = "src/index.ts"
 compatibility_date = "2023-04-22"
-
-[vars]
-API_TOKEN = "6180217867:AAHFg6wMmeDt8EIpZQNB7h-nPvug833ZHkc"
